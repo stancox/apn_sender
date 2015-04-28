@@ -24,13 +24,16 @@ module APN
     # Each iPhone Notification payload must be 256 or fewer characters (not including the token or other push data), see Apple specs at:
     # https://developer.apple.com/library/mac/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/CommunicatingWIthAPS.html#//apple_ref/doc/uid/TP40008194-CH101-SW4
     DATA_MAX_BYTES = 255
+    DATA_MAX_BYTES_8 = 2000
 
     attr_accessor :options, :token
     def initialize(token, opts)
+      @version = opts.delete("version") || 7
       @options = opts.is_a?(Hash) ? opts.symbolize_keys : {:alert => opts}
       @token = token
 
-      raise "The maximum size allowed for a notification payload is #{DATA_MAX_BYTES} bytes." if payload_size > DATA_MAX_BYTES
+      raise "[v8] The maximum size allowed for a notification payload is #{DATA_MAX_BYTES} bytes." if @version == "8" && payload_size > DATA_MAX_BYTES_8
+      raise "[v7] The maximum size allowed for a notification payload is #{DATA_MAX_BYTES} bytes." if @version == "7" && payload_size > DATA_MAX_BYTES
     end
 
     def to_s
@@ -80,7 +83,7 @@ module APN
             hsh['aps']['content-available'] = 1 if [1,true].include? content_available
           end
           hsh.merge!(opts)
-          Payload.new(hsh, DATA_MAX_BYTES).package
+          Payload.new(hsh, (@version == 8) ? DATA_MAX_BYTES_8 : DATA_MAX_BYTES).package
         end
     end
   end

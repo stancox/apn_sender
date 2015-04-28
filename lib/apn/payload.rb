@@ -28,7 +28,11 @@ class Payload
     def alert
       @alert ||=
       if hash_alert?
-        @notification_hash['aps']['alert']['loc-args'][0]
+        if @notification_hash["aps"]["alert"]["loc-key"] == "remoteNotifications.eventFollow"
+          @notification_hash['aps']['alert']['loc-args'][2]
+        else
+          @notification_hash['aps']['alert']['loc-args'][0]
+        end
       else
         @notification_hash['aps']['alert']
       end
@@ -36,7 +40,11 @@ class Payload
 
     def alert=(value)
       if hash_alert?
-        @notification_hash['aps']['alert']['loc-args'][0] = value
+        if @notification_hash["aps"]["alert"]["loc-key"] == "remoteNotifications.eventFollow"
+          @notification_hash['aps']['alert']['loc-args'][2] = value
+        else
+          @notification_hash['aps']['alert']['loc-args'][0] = value
+        end
       else
         @notification_hash['aps']['alert'] = value
       end
